@@ -7,6 +7,7 @@ from wtforms.validators import DataRequired
 import pandas as pd
 import pywhatkit as pwk
 import pyautogui
+import pyperclip
 
 UPLOAD_FOLDER = os.path.join('uploads')
 
@@ -62,22 +63,27 @@ def send():
         name = row['name']
         phone_number = str(row['phone_number'])
         phone_number = '+' + phone_number
-        # Menyiapkan template pesan awal
-        final_message = f'Hi {name}, {message}'
+    # Menyiapkan template pesan awal
+    final_message = f'Hi {name}, {message}'
 
-        # Mengirim pesan (pywhatkit)
-        if image_filename:
-            pwk.sendwhats_image(phone_number, image_filename, final_message,
-                                wait_time=10)
-        else:
-            pwk.sendwhatmsg_instantly(phone_number, final_message)
+    # Copy the image to the clipboard using pyperclip
+    if image_filename:
+        with open(image_filename, 'rb') as img_file:
+            img_data = img_file.read()
+        pyperclip.copy_image(img_data)
 
-        time.sleep(10)
+    # Mengirim pesan (pywhatkit)
+    if image_filename:
+        pwk.sendwhats_image(phone_number, final_message, wait_time=10)
+    else:
+        pwk.sendwhatmsg_instantly(phone_number, final_message)
 
-        # Menutup web WA (pythongui)
-        pyautogui.hotkey('ctrl', 'w')
+    time.sleep(10)
 
-        time.sleep(5)
+    # Menutup web WA (pythongui)
+    pyautogui.hotkey('ctrl', 'w')
+
+    time.sleep(5)
 
     return "Messages sent successfully!"
 
